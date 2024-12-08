@@ -14,6 +14,10 @@ try:
 except Exception as e:
     print(f"Error loading YOLO model: {e}")
 
+@app.route('/')
+def home():
+    return "YOLOv8 Flask API is running!"
+
 @app.route('/detect', methods=['POST'])
 def detect():
     try:
@@ -27,7 +31,7 @@ def detect():
 
         # Perform inference
         print("Running inference...")
-        results = model(image, conf=0.5)  # Adjust confidence threshold if needed
+        results = model(image, conf=0.25)  # Adjust confidence threshold if needed
         print(f"Detections: {results[0].boxes}")
 
         # Draw bounding boxes on the image
@@ -57,5 +61,4 @@ def detect():
 
 
 if __name__ == '__main__':
-    # Run the app on the specified port
     app.run(host="0.0.0.0", port=5000, debug=True)
