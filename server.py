@@ -54,7 +54,7 @@ def detect():
             draw.rectangle(xyxy.tolist(), outline="red", width=3)
             # Add label and confidence score
             label = f"{model.names[cls]}: {conf:.2f}"
-            draw.text((xyxy[0], xyxy[1] - 10), label, fill="red", font=font)
+            draw.text((xyxy[0], xyxy[1] - 20), label, fill="red", font=font)
 
         # Save the processed image to a BytesIO object
         img_io = io.BytesIO()
