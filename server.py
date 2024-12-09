@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_file
 from ultralytics import YOLO
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont  # Add ImageFont import
 import io
 import os
 
@@ -34,6 +34,15 @@ def detect():
         results = model(image, conf=0.25)  # Adjust confidence threshold if needed
         print(f"Detections: {results[0].boxes}")
 
+        # Load a font (adjust the font size as needed)
+        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"  # Path to a .ttf font file
+        font_size = 20  # Adjust the size as needed
+        try:
+            font = ImageFont.truetype(font_path, font_size)
+        except IOError:
+            print("Custom font not found. Using default font.")
+            font = ImageFont.load_default()  # Fallback to default font if custom font is not available
+
         # Draw bounding boxes on the image
         draw = ImageDraw.Draw(image)
         for box in results[0].boxes:
@@ -45,7 +54,7 @@ def detect():
             draw.rectangle(xyxy.tolist(), outline="red", width=3)
             # Add label and confidence score
             label = f"{model.names[cls]}: {conf:.2f}"
-            draw.text((xyxy[0], xyxy[1] - 10), label, fill="red", font=40)
+            draw.text((xyxy[0], xyxy[1] - 10), label, fill="red", font=font)
 
         # Save the processed image to a BytesIO object
         img_io = io.BytesIO()
