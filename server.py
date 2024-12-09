@@ -39,7 +39,7 @@ def detect():
         for box in results[0].boxes:
             xyxy = box.xyxy[0]  # Bounding box coordinates
             cls = int(box.cls)  # Class index
-            conf = box.conf     # Confidence score
+            conf = float(box.conf)  # Convert Tensor to float
 
             # Draw the bounding box
             draw.rectangle(xyxy.tolist(), outline="red", width=3)
