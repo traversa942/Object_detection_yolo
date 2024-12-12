@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_file
 from ultralytics import YOLO
 from PIL import Image, ImageDraw, ImageFont
 import io
+import base64
 
 app = Flask(__name__)
 
@@ -19,13 +20,17 @@ def home():
 @app.route('/detect', methods=['POST'])
 def detect():
     try:
-        # Check if an image is included in the request
-        if 'image' not in request.files:
-            return jsonify({"error": "No image file provided"}), 400
+        # Check if JSON body exists
+        if not request.json or 'image' not in request.json:
+            return jsonify({"error": "No image data provided in JSON"}), 400
 
-        # Load the uploaded image
-        image_file = request.files['image']
-        image = Image.open(image_file.stream).convert('RGB')
+        # Decode Base64 image from JSON
+        image_data = request.json['image']
+        try:
+            image_bytes = base64.b64decode(image_data)
+            image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
+        except Exception as e:
+            return jsonify({"error": f"Invalid image data: {e}"}), 400
 
         # Perform inference
         results = model(image, conf=0.25)
@@ -55,8 +60,11 @@ def detect():
         image.save(img_io, format="JPEG")
         img_io.seek(0)
 
-        # Return the processed image
-        return send_file(img_io, mimetype='image/jpeg')
+        # Encode the processed image to Base64
+        processed_image_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
+
+        # Return the Base64-encoded processed image
+        return jsonify({"processed_image": processed_image_base64})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
