@@ -1,16 +1,14 @@
 from flask import Flask, request, jsonify, send_file
 from ultralytics import YOLO
-from PIL import Image, ImageDraw, ImageFont  # Add ImageFont import
+from PIL import Image, ImageDraw, ImageFont
 import io
-import os
 
-# Initialize Flask app
 app = Flask(__name__)
 
-# Load the YOLOv8 model
+# Load YOLOv8 model
 try:
-    model = YOLO("yolov8n.pt")  # Use yolov8s.pt, yolov8m.pt, etc., for different sizes
-    print("Model loaded successfully")
+    model = YOLO("yolov8n.pt")  # Update the model file if using a different version
+    print("YOLOv8 model loaded successfully")
 except Exception as e:
     print(f"Error loading YOLO model: {e}")
 
@@ -25,34 +23,30 @@ def detect():
         if 'image' not in request.files:
             return jsonify({"error": "No image file provided"}), 400
 
-        # Load the image
+        # Load the uploaded image
         image_file = request.files['image']
         image = Image.open(image_file.stream).convert('RGB')
 
         # Perform inference
-        print("Running inference...")
-        results = model(image, conf=0.25)  # Adjust confidence threshold if needed
-        print(f"Detections: {results[0].boxes}")
+        results = model(image, conf=0.25)
 
-        # Load a font (adjust the font size as needed)
-        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"  # Path to a .ttf font file
-        font_size = 20  # Adjust the size as needed
+        # Load a font
+        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+        font_size = 20
         try:
             font = ImageFont.truetype(font_path, font_size)
         except IOError:
-            print("Custom font not found. Using default font.")
-            font = ImageFont.load_default()  # Fallback to default font if custom font is not available
+            font = ImageFont.load_default()
 
         # Draw bounding boxes on the image
         draw = ImageDraw.Draw(image)
         for box in results[0].boxes:
-            xyxy = box.xyxy[0]  # Bounding box coordinates
-            cls = int(box.cls)  # Class index
-            conf = float(box.conf)  # Convert Tensor to float
+            xyxy = box.xyxy[0].tolist()
+            cls = int(box.cls)
+            conf = float(box.conf)
 
             # Draw the bounding box
-            draw.rectangle(xyxy.tolist(), outline="red", width=3)
-            # Add label and confidence score
+            draw.rectangle(xyxy, outline="red", width=3)
             label = f"{model.names[cls]}: {conf:.2f}"
             draw.text((xyxy[0], xyxy[1] - 20), label, fill="red", font=font)
 
@@ -61,11 +55,10 @@ def detect():
         image.save(img_io, format="JPEG")
         img_io.seek(0)
 
-        # Return the image with bounding boxes
+        # Return the processed image
         return send_file(img_io, mimetype='image/jpeg')
 
     except Exception as e:
-        print(f"Error during detection: {e}")
         return jsonify({"error": str(e)}), 500
 
 
