@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "13526775481",
+    "project_id": "crear-producto-cod7xu",
+    "storage_bucket": "crear-producto-cod7xu.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13526775481:android:cc51bdba7e90d793cdcd68",
+        "android_client_info": {
+          "package_name": "com.mycompany.crearproducto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdUFNhqpkHY5x2qkJWn676gu8QlFNxeIQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
